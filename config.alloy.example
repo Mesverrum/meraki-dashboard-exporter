@@ -1,0 +1,25 @@
+livedebugging {
+  enabled = true
+}
+
+discovery.relabel "meraki" {
+  targets = [{"__address__" = "meraki-dashboard-exporter:9099"}]
+}
+
+prometheus.scrape "meraki" {
+  targets    = discovery.relabel.meraki.output
+  forward_to = [prometheus.remote_write.metrics_hosted_prometheus.receiver]
+  scrape_interval = "60s"
+  scrape_timeout  = "45s"
+}
+
+prometheus.remote_write "metrics_hosted_prometheus" {
+   endpoint {
+      url  = env("GCLOUD_HOSTED_METRICS_URL")
+  
+      basic_auth {
+        username = env("GCLOUD_HOSTED_METRICS_ID")
+        password = env("GCLOUD_RW_API_KEY")
+      }
+   }
+}
