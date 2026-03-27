@@ -30,3 +30,21 @@ services:
       - ALL
     tmpfs:
       - /tmp:size=64M,mode=1777
+  alloy:
+    image: grafana/alloy:latest
+    restart: always
+    pull_policy: always
+    env_file:
+      - .env
+    volumes:
+      - type: bind
+        source: ./config.alloy
+        target: /config.alloy
+    ports:
+      - 12346:12346
+    command:
+      - --server.http.listen-addr=0.0.0.0:12346
+      - --storage.path=/var/lib/alloy/data
+      - --stability.level=experimental
+      - run
+      - /config.alloy
